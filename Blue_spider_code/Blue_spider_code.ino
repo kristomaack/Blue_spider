@@ -29,35 +29,12 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 #define LEG4_2 13
 #define LEG4_3 14
 
-void setup() {
-  Serial.begin(9600);
-
-  pwm.begin();
-  pwm.setOscillatorFrequency(27000000);
-  pwm.setPWMFreq(SERVO_FREQ);  // Analog servos run at ~50 Hz updates
-
-  delay(10);
-
-  //restPos();
-  //delay(1000);
-
-  //Walking pos
-  legPos(1,45,90,170);
-  legPos(2,135,90,10);
-  legPos(3,135,90,10);
-  legPos(4,45,90,170);
-  delay(500);
-}
+float a1 = 48;
+float b1 = 85;
 
 void setServoDeg(uint8_t servonum, double deg) {
   double pulse = USMIN + ((USMAX-USMIN)/180) * deg;
   pwm.writeMicroseconds(servonum, pulse);
-}
-
-void restPos() {
-  for(int i = 0; i < 4; i++) {
-    legPos(i, 45, 10, 90);
-  }
 }
 
 void legPos(int legNr, int jointDeg1, int jointDeg2, int jointDeg3) {
@@ -88,12 +65,53 @@ void legPos(int legNr, int jointDeg1, int jointDeg2, int jointDeg3) {
     setServoDeg(leg, jointDeg1);
     setServoDeg(leg+1, jointDeg2);
     setServoDeg(leg+2, jointDeg3);
-  }
-  else {
+  } else {
     Serial.println("Wrong leg number!");
   }
 }
 
-void loop() {
+void move_z_axis(int z) {
+  Serial.println(z);
+  float insidecos = (a1*a1+b1*b1-z*z)/(2*a1*b1);
+  double beta = acos(insidecos)*180/3.14;
+  double alpha = (180-beta)/2;
+  Serial.print("Beta: ");
+  Serial.print(beta);
+  Serial.print(" Alpha: "); 
+  Serial.println(alpha);
+  for(int i = 1; i <= 4; i++) {
+    legPos(i, 45, int(beta), int(alpha));
+  }
+
+}
+
+void restPos() {
+  for(int i = 1; i <= 4; i++) {
+    legPos(i, 45, 10, 90);
+  }
+}
+
+void setup() {
+  Serial.begin(9600);
+
+  pwm.begin();
+  pwm.setOscillatorFrequency(27000000);
+  pwm.setPWMFreq(SERVO_FREQ);  // Analog servos run at ~50 Hz updates
+
   restPos();
+
+  delay(500);
+}
+
+void loop() {
+  for(int i = 50; i<=120; i++) {
+    move_z_axis(i);
+    delay(100);
+  }
+  delay(500);
+  for(int i = 120; i>=50; i--) {
+    move_z_axis(i);
+    delay(100);
+  }
+  delay(500);
 }
