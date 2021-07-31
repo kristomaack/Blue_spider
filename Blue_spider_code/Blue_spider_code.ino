@@ -74,11 +74,16 @@ void move_z_axis(int z) {
   Serial.println(z);
   float insidecos = (a1*a1+b1*b1-z*z)/(2*a1*b1);
   double beta = acos(insidecos)*180/3.14;
-  double alpha = (180-beta)/2;
-  Serial.print("Beta: ");
-  Serial.print(beta);
-  Serial.print(" Alpha: "); 
-  Serial.println(alpha);
+  insidecos = (a1*a1+z*z-b1*b1)/(2*a1*z);
+  double alpha = acos(insidecos)*180/3.14;
+  //double alpha = (180-beta)/2;
+  // Serial.print("Beta: ");
+  // Serial.print(beta);
+  // Serial.print(" Alpha: "); 
+  // Serial.println(alpha);
+  alpha -= 20;
+  beta -= 20;
+
   for(int i = 1; i <= 4; i++) {
     legPos(i, 45, int(beta), int(alpha));
   }
@@ -103,15 +108,17 @@ void setup() {
   delay(500);
 }
 
+#define delay_time 0
+
 void loop() {
-  for(int i = 50; i<=120; i++) {
+  for(int i = 40; i<=130; i++) {
     move_z_axis(i);
-    delay(100);
+    delay(delay_time);
   }
   delay(500);
-  for(int i = 120; i>=50; i--) {
+  for(int i = 130; i>=40; i--) {
     move_z_axis(i);
-    delay(100);
+    delay(delay_time);
   }
   delay(500);
 }
